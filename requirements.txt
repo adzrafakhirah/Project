@@ -1,7 +1,5 @@
 pandas 
-plotly.express 
-plotly.graph_objects 
+plotly
 numpy 
 geopandas 
-json
 altair 
