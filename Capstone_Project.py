@@ -8,9 +8,7 @@ import geopandas as gpd
 import altair as alt
 
 dataset = pd.read_csv('dataset.csv')
-alldataset = pd.read_csv('all dataset.csv')
 all_listings = pd.read_csv('all listings.csv')
-reviews_18 = pd.read_csv('reviews 2018 - 2023.csv')
 
 # Convert 'date' column to datetime type
 dataset['date'] = pd.to_datetime(dataset['date'])
@@ -21,6 +19,7 @@ dataset = dataset.assign(roomtype_neighbourhood= dataset['room_type'] + ' // ' +
                          host_neighbourhood=dataset['host_name'] + ' // ' + dataset['neighbourhood'])
 
 dataset = dataset.assign(property_neighbourhood= dataset['neighbourhood'] + ' // ' + dataset['name'])
+
 
 st.set_page_config(
     page_title="Airbnb Bangkok, Thailand: Exploratory Dashboard",
@@ -113,7 +112,7 @@ if factor_group == 'Trend Rata-rata Penyewaan per Tahun':
    st.markdown("Pada **:red[tahun 2020 hingga 2021]** Airbnb Bangkok, Thailand **:red[mengalami penurunan jumlah penyewaan yang sangat tajam]**. Hal ini dikarenakan **:red[terjadinya pandemi Covid-19]** yang melanda seluruh dunia **:red[pada awal tahun 2020 dan diberlakukannya lockdown]** sehingga hal ini berdampak pula pada sektor bisnis yang ada di Bangkok, Thailand. Akan tetapi dapat dilihat bahwa **:red[pasca pandemi rata-rata jumlah penyewaan per tahunnya mengalami peningkatan yang sangat signifikan]** dan **:red[puncaknya berada di tahun 2023]**, jumlah ini bahkan melebihi jumlah penyewa sebelum pandemi. Jumlah penyewa yang meningkat ini ternyata sejalan dengan meningkatnya jumlah wisatawan yang datang ke Thailand di kuartal pertama tahun 2023.")
 elif factor_group == 'Trend Penyewaan per Bulan':
    st.altair_chart(fig_m,use_container_width=True)
-   st.markdown("Berdasarkan trend penyewaan per bulan, **:red[pada saat sebelum dan sesudah pandemi dapat dilihat bahwa setiap tahunnya terdapat pola fluktuatif yang terus terjadi]** dan hampir selalu sama setiap tahunnya. Pada bulan **:red[Juni - Agustus dan November - Januari selalu mengalami peningkatan]** jumlah penyewaan dikarenakan bertepatan dengan musim panas dan musim dingin dimana banyak negara yang memiliki liburan sekolah di kedua musim tersebut, serta musim liburan akhir tahun, dan diskon promosi akhir tahun. Sedangkan pada bulan **:red[Januari - Mei dan September - Oktober hampir selalu mengalami penurunan]** mungkin dikarenakan sudah masuk masa pasca-liburan sehingga orang-orang sudah mulai sibuk sekolah dan bekerja, serta merupakan musim peralihan dengan cuaca yang tidak menentu.")
+   st.markdown("Berdasarkan trend penyewaan per bulan, **:red[pada saat sebelum dan sesudah pandemi dapat dilihat bahwa setiap tahunnya terdapat pola fluktuatif yang terus terjadi]** dan hampir selalu sama setiap tahunnya. Pada bulan **:red[Juni - Agustus dan November - Januari selalu mengalami peningkatan]** jumlah penyewaan dikarenakan bertepatan dengan musim panas dan musim dingin dimana banyak negara yang memiliki liburan sekolah di kedua musim tersebut, serta musim liburan akhir tahun, dan diskon promosi akhir tahun. Sedangkan pada bulan **:red[Januari - Mei dan September - Oktober hampir selalu mengalami penurunan]** dikarenakan sudah masuk masa pasca-liburan sehingga orang-orang sudah mulai sibuk sekolah dan bekerja, serta merupakan musim peralihan dengan cuaca yang tidak menentu.")
 
 
 
@@ -260,7 +259,7 @@ with b2:
     options = ['Presentase Jumlah Review per Room type', 'Trend Rata-rata Jumlah Review pada Room Type per Tahun (2018 - 2023)','Top 5 Room type per Distrik']
     factor_group3 = st.selectbox("", options, key="factor_group3")
     if factor_group3 == 'Presentase Jumlah Review per Room type':
-        st.markdown("Berdasarkan room type, jumlah review tertinggi terdapat pada **:red[Entire home/ Apartment]** yang mendominasi bahkan mencapai lebih dari 3/4 total review yaitu 76,8%, selanjutnya diikuti oleh Private Room sebesar 18,8% dan Hotel Room serta Shared Room yang memilikipresentase di bawah 5%.")
+        st.markdown("Berdasarkan room type, jumlah review tertinggi terdapat pada **:red[Entire home/ Apartment]** yang mendominasi bahkan mencapai lebih dari 3/4 total review yaitu 76,8%, selanjutnya diikuti oleh Private Room sebesar 18,8% dan Hotel Room serta Shared Room yang memiliki presentase di bawah 5%.")
         st.plotly_chart(fig_pie_mr)
     elif factor_group3 == 'Trend Rata-rata Jumlah Review pada Room Type per Tahun (2018 - 2023)':
        st.markdown("Berdasarkan trend rata-rata jumlah review pada room type per tahun, **:red[Entire home/ Apartment]** selalu berada di posisi teratas pada saat sebelum dan sesudah pandemi dan bahkan mengalami peningkatan yang sangat signifikan setelah pandemi.")
@@ -273,12 +272,15 @@ with b2:
 # Tabel harga neighbourhood
 allprice_n = dataset.groupby('neighbourhood').agg(
     total_review=('date', 'count'),
-    sum=('price', 'sum'),
-    min=('price', 'min'),
-    max=('price', 'max'),
-    mean=('price', 'mean'),
-    median=('price', lambda x: x.median())
+    total_income=('price', 'sum'),
+    min_price=('price', 'min'),
+    mid_price=('price', 'mean'),
+    max_price=('price', 'max'),
+    avg_price=('price', lambda x: x.median())
 ).sort_values('total_review', ascending=False).reset_index()
+# Membulatkan nilai mid_price dan avg_price ke 2 angka desimal
+allprice_n['mid_price'] = round(allprice_n['mid_price'], 2)
+allprice_n['avg_price'] = round(allprice_n['avg_price'], 2)
 
 # Tabel harga roomtype
 allprice_r = dataset.groupby('room_type').agg(
@@ -289,6 +291,10 @@ mid_price=('price', lambda x: np.median(x)),
 max_price=('price', 'max'),
 avg_price=('price', 'mean')
 ).sort_values('total_review', ascending=False).reset_index()
+# Membulatkan nilai mid_price dan avg_price ke 2 angka desimal
+allprice_r['mid_price'] = round(allprice_r['mid_price'], 2)
+allprice_r['avg_price'] = round(allprice_r['avg_price'], 2)
+
 
 # Tabel harga properti
 properti_night = dataset.groupby(['name', 'neighbourhood', 'room_type']).agg(
@@ -298,12 +304,17 @@ price=('price', 'first')
 ).reset_index()
 properti_night = properti_night.sort_values('total_review', ascending=False).reset_index()
 
+# Membuat peta median harga per distrik
 maps_price = all_listings.groupby('neighbourhood').agg(
 latitude=('latitude', 'first'),
 longitude=('longitude', 'first'),
 mid_price=('price', lambda x: np.median(x)),
 avg_price=('price', 'mean')
 ).reset_index().sort_values('mid_price', ascending=False)
+# Membulatkan nilai mid_price dan avg_price ke 2 angka desimal
+maps_price['mid_price'] = maps_price['mid_price'].apply(lambda x: round(x, 2))
+maps_price['avg_price'] = maps_price['avg_price'].apply(lambda x: round(x, 2))
+
 with open('neighbourhoods.geojson') as f:
     geojson_data = json.load(f)
 df_geojson = pd.json_normalize(geojson_data['features'])
@@ -333,30 +344,30 @@ with tab3:
         st.header("")
         st.header("")
         st.header("")
-        st.markdown("Berdasarkan data pada tabel dan peta sebaran median harga per distrik didapatkan bahwa beberapa property yang jauh dengan pusat kota Bangkok dan juga yang berdeketan memiliki nilai median yang tinggi. Adapun nilai median tertinggi terdapat pada Nong Chok yang berada di ujung barat dengan nilai sebesar 3000 THB, kedua tertinggi terdapat pada Pathum Wan yang berada di pusat kota Bangkok dengan nilai sebesar 2476 THB. Akan tetapi ada baiknya dalam memilih property melihat juga dari skala range harga tertinggi dan terendahnya agar bisa menyesuaikan dengan budget yang dimiliki.")
+        st.markdown("Berdasarkan data pada tabel harga dan peta sebaran median harga per distrik didapatkan bahwa beberapa **:red[property yang berada di sekitar pusat kota Bangkok dan jauh dari pusat kota memiliki harga median yang tinggi]**. Adapun harga median tertinggi terdapat pada **Nong Chok** yang berada di ujung barat dengan nilai sebesar 3.000 THB, kedua tertinggi terdapat pada **Pathum Wan** yang berada di pusat kota Bangkok dengan nilai sebesar 2.476 THB. Akan tetapi dengan banyaknya jumlah penyewaan di sekitar pusat kota dengan pertimbangan lokasi yang strategis dan dekat dengan sarana transportasi, penyewa tetap lebih senang menyewa di sekitar pusat kota. Maka dari itu ada baiknya penyewa dalam memilih property melihat range harga terendah dan tertingginya agar bisa menyesuaikan dengan budget yang dimiliki.")
   
 
 with tab4:
     st.header("Harga per Room Type")
     st.dataframe(allprice_r.style.highlight_max(axis=0),use_container_width=True)
-    st.markdown("Entire home/ Apartment yang menempati posisi pertama dengan review tertinggi ternyata memiliki harga maksimum, harga mid, dan rata-rata tertinggi akan tetapi juga memiliki harga minimum terendah. Walaupun memiliki harga relative tinggi diantara semua aspek, penyewa tetap lebih memilih room dengan tipe ini. Hal ini mungkin tetap masih ditolerir oleh para penyewa dikarenakan dengan lengkapnya fasilitas yang ditawarkan tipe room ini dan range harganya yang cukup besar sehingga penyewa masih bisa memilih property yang sesuai dengan kebutuhan. Adapun fasilitas pada entire home/ apartment biasanya sudah termasuk kamar tidur, kamar mandi dan dapur.")
-    st.markdown("Selanjutnya shared room yang memiliki harga maksimum, harga mid, dan rata-rata terendah serta harga minimum terendah kedua tetap memiliki jumlah review terendah. Hal ini mungkin dikarenakan kurangnya privasi pada tipe room ini dan adanya fenomena pandemi selama 3 tahun terakhir membuat shared room makin kurang diminati oleh penyewa.")
+    st.markdown("**:red[Entire home/ Apartment]** yang menempati posisi pertama dengan review tertinggi ternyata memiliki harga maksimum, harga median, dan rata-rata tertinggi akan tetapi juga memiliki harga minimum terendah. Walaupun memiliki harga relative tinggi diantara semua aspek, penyewa tetap lebih memilih room dengan tipe ini. Hal ini mungkin tetap masih ditolerir oleh para penyewa dikarenakan dengan lengkapnya fasilitas yang ditawarkan tipe room ini dan range harganya yang cukup besar sehingga penyewa masih bisa memilih property yang sesuai dengan kebutuhan. Adapun fasilitas pada entire home/ apartment biasanya sudah termasuk kamar tidur, kamar mandi dan dapur.")
+    st.markdown("Selanjutnya **:red[Shared Room]** yang memiliki harga maksimum, harga median, dan rata-rata terendah serta harga minimum terendah kedua tetap memiliki jumlah review terendah. Hal ini mungkin dikarenakan kurangnya privasi pada tipe room ini dan adanya fenomena pandemi selama 3 tahun terakhir membuat shared room makin kurang diminati oleh penyewa.")
 
 with tab5:
     st.header("Harga per Property")
     st.dataframe(properti_night.style.highlight_max(axis=0),use_container_width=True)
-    st.markdown('Berdasarkan property yang disewakan “Beautiful One Bedroom Apartment Near Skytrain” yang berada di Distrik Phaya Thai memiliki jumlah review terbanyak dengan jumlah minimum harinya adalah 1 malam dengan harga 1393 THB. Distrik Phaya Thai merupakan salah satu distrik yang juga berada di pusat Kota Bangkok.')
-    st.markdown('Selanjutnya, dapat dilihat bahwa property dengan jumlah review terbanyak memiliki nama atau keyword yang berkaitan dengan transportasi. Maka dapat disimpulkan bahwa penyewa memilih property berdasarkan lokasi strategis yang dekat dengan sarana transportasi.')
-    st.markdown('Jumlah minimum hari yang ditetapkan pada tiap property dapat dilihat juga bahwa sangat berpengaruh terhadap jumlah penyewaan, semakin sedikit hari yang ditetapkan semakin banyak penyewa yang menyewa dan sebaliknya*. Hal ini dikarenakan pengguna Airbnb biasanya merupakan wisatawan yang ingin menginap beberapa hari saja bukan untuk menetap.')
-    st.markdown('Entire home/ apartment juga mendominasi property dan ada juga private room yang berada di posisi 10 besar yaitu di posisi 4. Private room berdasarkan jumlah review menempati posisi kedua tertinggi setelah entire home/ apartment, fasilitas yang dimiliki adalah kamar sendiri untuk tidur namun berbagi beberapa area dengan orang lain. Private room memiliki harga minimum, mid, dan rata-rata terendah kedua dan memiliki harga maksimum kedua tertinggi.')
-    st.markdown('_:orange[* = Hal ini tidak bersifat mutlak karena pasti ada faktor lain juga yang mempengaruhi jumlah penyewaan semisalnya yaitu preferensi.]_')
+    st.markdown('Berdasarkan property yang disewakan **:red[“Beautiful One Bedroom Apartment Near Skytrain”]** yang berada di Distrik Phaya Thai memiliki jumlah review terbanyak dengan jumlah minimum harinya adalah 1 malam dengan harga 1393 THB. Distrik Phaya Thai merupakan salah satu distrik yang juga **:red[berada di sekitar pusat Kota Bangkok]**.')
+    st.markdown('Selanjutnya, dapat dilihat bahwa **:red[property dengan jumlah review terbanyak memiliki nama atau keyword yang berkaitan dengan transportasi]**. Maka dapat disimpulkan bahwa penyewa memilih property berdasarkan lokasi strategis yang dekat dengan sarana transportasi.')
+    st.markdown('**:red[Jumlah minimum hari]** yang ditetapkan pada tiap property dapat dilihat juga bahwa sangat berpengaruh terhadap jumlah penyewaan, semakin sedikit hari yang ditetapkan semakin banyak penyewa yang menyewa dan sebaliknya*. Hal ini dikarenakan pengguna Airbnb biasanya merupakan wisatawan yang ingin menginap beberapa hari saja bukan untuk menetap.')
+    st.markdown('**:red[Entire home/ apartment]** juga mendominasi property dan ada juga **:red[private room]** yang berada di posisi 10 besar yaitu di posisi 4. Private room berdasarkan jumlah review menempati posisi kedua tertinggi setelah entire home/ apartment, fasilitas yang dimiliki adalah kamar sendiri untuk tidur namun berbagi beberapa area dengan orang lain. Private room memiliki harga minimum, median, dan rata-rata terendah kedua dan memiliki harga maksimum kedua tertinggi.')
+    st.markdown('_:orange[* = Hal ini tidak bersifat mutlak karena pasti ada faktor lain juga yang mempengaruhi jumlah penyewaan semisalnya yaitu preferensi dan kebutuhan.]_')
 
 
 st.header("")
 st.header("Rekomendasi")
-st.markdown('- Penyewa sebaiknya menyewa property di Khlong Toei dan Vadhana yang memiliki jumlah review tertinggi dan berada di dekat pusat kota. Adapun harga property di Khlong Toei sebesar 340 - 650.910 THB dengan median harga 1700 THB dan Vadhana sebesar 120 - 226.193 THB dengan median harga 1700 THB, distrik Vadhana memiliki harga minimum terendah')
-st.markdown('- Penyewa sebaiknya menyewa property di sekitar pusat kota Bangkok dengan mempertimbangkan lokasi dan dekat sarana transportasi. Adapun property yang dekat dengan pusat kota dan sarana transportasi dengan jumlah review terbanyak terdapat pada “Beautiful One Bedroom Apartment Near Skytrain” yang berada di Distrik Phaya Thai dengan tipe room Entire home/ apartment')
-st.markdown('- Penyewa sebaiknya menyewa tipe Entire Home/ Apartment yang memiliki jumlah review tertinggi walaupun memiliki harga tertinggi, adapun harganya yaitu 120 - 1.000.000 THB dengan median harga 1.500 THB. Namun apabila ingin tipe lain penyewa bisa memilih private room yang memiliki jumlah review tertinggi kedua dan harga terendah kedua yaitu sebesar 304 - 650910 THB dengan median harga 950 THB.')
+st.markdown('- Penyewa sebaiknya menyewa property di Khlong Toei dan Vadhana yang memiliki jumlah review tertinggi dan berada di dekat pusat kota. Adapun harga property di Khlong Toei yaitu berkisar antara 340 - 650.910 THB dengan median harga 1.700 THB dan Vadhana dengan kisaran harga 120 - 226.193 THB dengan median harga 1.700 THB, distrik Vadhana memiliki harga minimum terendah diantara semua distrik yang ada.')
+st.markdown('- Penyewa sebaiknya menyewa tipe Entire Home/ Apartment yang memiliki jumlah review tertinggi dengan median harga yaitu 1.500 THB dan kisaran harga 120 - 1.000.000 THB, walaupun tipe room ini memiliki median harga tertinggi tetapi dengan lengkapnya fasilitas yang ada dapat menjadi pilihan yang baik. Namun apabila ingin tipe lain penyewa bisa memilih private room yang memiliki jumlah review tertinggi kedua dan median harga terendah kedua yaitu sebesar 950 THB dengan kisaran harga 304 - 650.910 THB.')
+st.markdown('- Penyewa sebaiknya menyewa property di sekitar pusat kota Bangkok dengan mempertimbangkan lokasi dan dekat sarana transportasi. Adapun property yang dekat dengan pusat kota dan sarana transportasi dengan jumlah review terbanyak terdapat pada “Beautiful One Bedroom Apartment Near Skytrain” yang berada di Distrik Phaya Thai dengan tipe room Entire home/ apartment.')
 st.header("")
 st.header("")
-st.markdown('Source : Inside Airbnb, Wikipedia, Asia Media Centre, Touropia, TTR WEEKLY')
+st.markdown('_Source : Inside Airbnb, Wikipedia, Asia Media Centre, Touropia, TTR WEEKLY_')
