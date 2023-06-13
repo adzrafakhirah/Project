@@ -344,7 +344,9 @@ with tab3:
         st.header("")
         st.header("")
         st.header("")
-        st.markdown("Berdasarkan data pada tabel harga dan peta sebaran median harga per distrik didapatkan bahwa beberapa **:red[property yang berada di sekitar pusat kota Bangkok dan jauh dari pusat kota memiliki harga median yang tinggi]**. Adapun harga median tertinggi terdapat pada **Nong Chok** yang berada di ujung barat dengan nilai sebesar 3.000 THB, kedua tertinggi terdapat pada **Pathum Wan** yang berada di pusat kota Bangkok dengan nilai sebesar 2.476 THB. Akan tetapi dengan banyaknya jumlah penyewaan di sekitar pusat kota dengan pertimbangan lokasi yang strategis dan dekat dengan sarana transportasi, penyewa tetap lebih senang menyewa di sekitar pusat kota. Maka dari itu ada baiknya penyewa dalam memilih property melihat range harga terendah dan tertingginya agar bisa menyesuaikan dengan budget yang dimiliki.")
+        st.markdown("Berdasarkan data pada tabel harga dan peta sebaran median harga per distrik didapatkan bahwa beberapa **:red[property yang berada di sekitar pusat kota Bangkok dan jauh dari pusat kota memiliki harga median yang tinggi]**.")
+        st.markdown("Adapun **:red[harga median tertinggi]** terdapat pada **:red[Nong Chok]** yang berada di ujung barat dengan nilai sebesar 3.000 THB, kedua tertinggi terdapat pada **:red[Pathum Wan]** yang berada di pusat kota Bangkok dengan nilai sebesar 2.476 THB.")
+        st.markdown("Akan tetapi dengan banyaknya jumlah penyewaan di sekitar pusat kota dengan pertimbangan lokasi yang strategis dan dekat dengan sarana transportasi, penyewa tetap lebih senang menyewa di sekitar pusat kota. Maka dari itu ada baiknya penyewa dalam memilih property melihat range harga terendah dan tertingginya agar bisa menyesuaikan dengan budget yang dimiliki.")
   
 
 with tab4:
